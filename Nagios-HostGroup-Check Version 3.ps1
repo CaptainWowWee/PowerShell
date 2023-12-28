@@ -1,5 +1,7 @@
 # Stephen Pastoriza 2023-29-11
 # PowerShell script to check the status of new PMCS customers and upgrade projects in monitoring.
+# Version 3 - Checks access to WinRM Ports
+
 Clear-Host
 Set-Location "C:\Users\e5614720\Documents\Nagios_Outputs\HostGroup_Check"
 
