@@ -1,13 +1,19 @@
-$Server = "IWKSUSEPAHSQL01.prod.cloud" 
-$Port = "5985"
+function testport ()
+{
+    param(
+    [Parameter(Mandatory = $true)] [string]$Hostname,
+    [Parameter(Mandatory = $true)] [string]$Port
+    )
+    $timeout=900
 
-$t = New-Object Net.Sockets.TcpClient
-$t.Connect($Server,$Port)
-    if($t.Connected)
-    {
-        "Port $Port is operational"
-    }
-    else
-    {
-        "Port $Port is closed, You may need to contact your IT team to open it. "
-    }
+    $requestCallback = $state = $null
+    $client = New-Object System.Net.Sockets.TcpClient
+    $client.BeginConnect($Hostname,$Port,$requestCallback,$state) | out-Null
+    Start-Sleep -milli $timeOut
+    if ($client.Connected) { $Status = "Open" } else { $Status = "Closed" }
+    $client.Close()
+    Write-Output $Status
+}
+
+# To ruun the command
+TestPort IWKSAPKPKIDDC02.prod.cloud 5985
