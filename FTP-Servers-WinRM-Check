@@ -1,0 +1,54 @@
+# Simple Powershell script to get a list of all FRP servers. Then check access on the stipulated port and send the results to an array.
+# Stephen Pastoriza 2024-10-28
+
+Clear-Host
+Remove-Variable * -ErrorAction SilentlyContinue; Remove-Module *; $error.Clear();
+
+# OU Path to check
+$ouPath = "OU=Prophet Managed Services,OU=Customers,DC=prod,DC=cloud"
+
+# Get a list of FTP servers using a Regex to find correct servers sorts servers in Descending
+$servers = Get-ADComputer -SearchBase $OUpath -Filter 'operatingSystem -like "*server*" -and enabled -eq "true"' | Where-Object Name -Match "FTP\d{2,3}$" |  Sort-Object -Descending |  Select-Object -ExpandProperty Name 
+
+# Port to check
+$port = 5985
+
+# Create empty arrays
+$reachableServers = @()
+$nonReachableServers = @()
+
+
+# Fast method for checking server access
+Function testport ()
+{
+    param(
+    [Parameter(Mandatory = $true)] [string]$Hostname,
+    [Parameter(Mandatory = $true)] [string]$Port
+    )
+    $timeout=500
+
+    $requestCallback = $state = $null
+    $client = New-Object System.Net.Sockets.TcpClient
+    $client.BeginConnect($Hostname,$Port,$requestCallback,$state) | out-Null
+    Start-Sleep -milli $timeOut
+    if ($client.Connected) { $Status = "Open" } else { $Status = "Closed" }
+    $client.Close()
+    Write-Output $Status
+}
+
+forEach ($server in $Servers) { # Start of forEach
+
+$Result =   testPort $server $port
+if ($Result -eq "Open") {$reachableServers += $Server} else {$nonReachableServers += $Server}
+   
+} # End of forEach
+
+# Test Results:
+
+$reachableServers 
+$nonReachableServers
+
+$reachableServers.Count
+$nonReachableServers.Count
+
+$TotalServers = $reachableServers.Count + $nonReachableServers.Count
