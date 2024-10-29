@@ -1,0 +1,25 @@
+# Set Working Directory.
+Set-Location "D:\Aviva Data\EFT_Config\"
+
+# Location to the Certificate.
+$certPath = "D:\Aviva Data\EFT_Config\AvivaSingLife.cer"
+
+# Command to convert the .cer to a .csv
+Get-PfxCertificate -FilePath $certPath | Export-Csv .\cert.csv -NoTypeInformation
+
+# Import the csv to query.
+$csvData = Import-csv -Path .\cert.csv
+
+# Locate the expiry date
+$certExpiryDate = $csvData | Select-Object -ExpandProperty NotAfter
+
+
+<# Testing Arena
+Set-Location "C:\Temp\"
+
+Location of certificate file:
+$certPath = 'C:\temp\AvivaSingLife.cer'
+
+# Command to convert the .cer to a .csv
+Get-PfxCertificate -FilePath $certPath | Export-Csv .\cert.csv -NoTypeInformation
+#>
